@@ -129,21 +129,58 @@ void moveFile(string& currentPath)
         }
     }
 }
-void openFile(string& currentPath, string& fileName)
-{
-	cout << "Enter filename with extension (eg .txt): ";
-	getline(cin, fileName);
+// void openFile(const string currentPath, string& fileName)
+// {
 	
-	while(!fs::exists(currentPath+'\\'+fileName))
+// }
+void changeDirectory(string& currentPath)
+{
+	string str;
+	cout << "Current Directory: "<<currentPath<<endl;
+    cout << "Specify your destination (Press Enter if you are already in the destination directory)\nType '..' if you would like to go back a folder in directory:\n";
+    getline(cin,str);
+	cout << endl<<endl;
+	while(str.size()!=0)
 	{
-		cout << "Invalid file. Please enter a valid file: ";
-		getline(cin,fileName);
-	}
-	string command = "start " + currentPath + '\\' + fileName; 
-	if(system(command.c_str())==0)
-		cout << "File was opened successfully!"<<endl;
-	else
-		cout << "File was not opened"<<endl;
+		if(str=="..")
+		{
+			size_t backSlash = currentPath.rfind("\\");
+			if(backSlash!=string::npos)
+			{
+				currentPath.erase(backSlash);
+				cout << "Current Directory: "<<currentPath<<endl;
+			}
+			else
+				cout << "String not modified"<<endl;
+
+			cout << "Current Directory: "<<currentPath<<endl;
+			cout << "Directory Content: "<<endl;
+			displayDirectory(currentPath);
+			displayFiles(currentPath);
+			cout << endl;
+			cout << "Specify your destination (Press Enter if you are already in the destination directory): \n";
+			getline(cin,str);
+		}
+		else
+		{
+			while (!pathExist(currentPath+'\\'+str)) 
+			{
+				cout << "Invalid path. Please enter a valid folder/directory (Press enter if no input is needed):\n";
+				getline(cin,str);
+				cout<<endl;	
+			}
+			currentPath.push_back('\\');
+			currentPath += str;	
+
+			cout << "Current Directory: "<<currentPath<<endl;
+			cout << "Directory Content: "<<endl;
+			displayDirectory(currentPath);
+			displayFiles(currentPath);
+			cout << endl;
+			cout << "Specify your destination (Press Enter if you are already in the destination directory): \n";
+			getline(cin,str);
+		}
+	}         	
 }
 
 int main()
@@ -154,12 +191,12 @@ int main()
 
     string currentPath = "C:\\Users\\FlyHercules\\Downloads";
 
-	cout << "Would you like to enter a default directory or use the default program directory? (y/n): ";
+	cout << "Would you like to enter a default directory or use the default program directory? (y/n): \n";
     cin >> option;
 
     if(option=='y' || option=='Y' || option=='YES' || option=='yes')
     {
-        cout << "Specify your destination (Press Enter if you are already in the destination directory): ";
+        cout << "Specify your destination (Press Enter if you are already in the destination directory): \n";
         getline(cin,currentPath);
     }
 	cout<<endl;
@@ -173,34 +210,14 @@ int main()
 		cout << endl;
         displayMenu();
         cin >> answer;
-        cin.ignore();
+		cin.ignore();
+		cout << endl;
 
         if(answer==0)
             break;
         else if(answer==1)
         {
-            string str;
-            cout << "Specify your destination (Press Enter if you are already in the destination directory): ";
-            getline(cin,str);
-			cout << endl;
-			while(str.size()!=0)
-			{
-				while (!pathExist(currentPath+'\\'+str)) 
-				{
-					cout << "Invalid path. Please enter a valid folder/directory: ";
-					getline(cin,str);
-					cout<<endl;	
-				}
-				currentPath.push_back('\\');
-				currentPath += str;	
-
-				cout << "Current Directory: "<<currentPath<<endl;
-				cout << "Directory Content: "<<endl;
-				displayDirectory(currentPath);
-				displayFiles(currentPath);
-				cout << "Specify your destination (Press Enter if you are already in the destination directory): ";
-				getline(cin,str);
-			}           
+            changeDirectory(currentPath);
 			cout << "Press enter to continue: "<<endl;
 			cin.ignore(); 			
         }
@@ -216,9 +233,21 @@ int main()
             cout << "Press enter to continue: "<<endl;
             cin.ignore();
         }
-		else if(answer==4)
+		else if(answer==4) //Issues
 		{
-			openFile(currentPath, fileName);
+			cout << "Enter filename with extension (eg .txt): ";
+			getline(cin, fileName);
+			
+			while(!fs::exists(currentPath+'\\'+fileName))
+			{
+				cout << "Invalid file. Please enter a valid file: ";
+				getline(cin,fileName);
+			}
+			string command = "start " + currentPath + '\\' + fileName; 
+			if(system(command.c_str())==0)
+				cout << "File was opened successfully!"<<endl;
+			else
+				cout << "File was not opened"<<endl;
 			cout << "Press enter to continue: "<<endl;
 			cin.ignore();
 		}
@@ -230,7 +259,7 @@ int main()
 			while(pathExist(currentPath+'\\'+name))
 			{
 				string temp;
-				cout << "Path already exists. Would you like to remove and over-write previous path with new one? (y/n): ";
+				cout << "Path already exists. Would you like to remove and over-write previous path with new one? (y/n): \n";
 				getline(cin,temp);
 				if(temp=="y")
 				{
@@ -249,7 +278,7 @@ int main()
 				}
 				else
 				{
-					cout << "Enter new file name: ";
+					cout << "Enter new file name: \n";
 					getline(cin, name);
 				}
 			}
