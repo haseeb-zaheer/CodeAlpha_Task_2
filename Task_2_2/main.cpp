@@ -60,14 +60,24 @@ void copyFile(string& currentPath)
 		cout << "Please navigate to location for paste (Press Enter without any input \nif are already in destination directory): ";
 		getline(cin, temp);
 
+
 		if(temp.size()==0)	//copy
 		{
-			if(fs::exists(destinationPath + '\\' + fileName))
+			if(destinationPath+'\\'+fileName != currentPath + '\\'+fileName)
+			{
+				if(fs::exists(destinationPath + '\\' + fileName))
 				fs::remove(destinationPath + '\\' + fileName);
 
-			fs::copy(currentPath + '\\' + fileName, destinationPath + '\\' + fileName);
-			cout << "File was copied!!" <<endl;
-			break;
+				fs::copy(currentPath + '\\' + fileName, destinationPath + '\\' + fileName);
+				cout << "File was copied!!" <<endl;
+				break;
+			}
+			else
+			{
+				cout << "File already exists in directory!"<<endl;
+				break;
+			}
+			
 		}
 		else
 		{
