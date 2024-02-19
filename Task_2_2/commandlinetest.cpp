@@ -48,28 +48,42 @@ void navigate(string& currentDirectory)
     string temp;
     cout << "Current directory: " << currentDirectory << endl;
     printFolders(currentDirectory);
-    cout << "Enter folder name to open it in current directory (to go back a folder, enter '..'): ";
+    cout << "Enter folder name to open it in current directory (to go back a folder, enter '..')\n(Enter nothing to enter full directory): ";
     getline(cin, temp);
     
-    while (!pathExist(currentDirectory + '\\' + temp) && temp != "..")
+    while (true)
     {
+        if(temp.size()==0)
+        {
+            cout << "Enter full directory: ";
+            getline(cin,temp);
+            if (pathExist(temp))
+            {
+                currentDirectory = temp;
+                cout << "Navigated to directory: " << currentDirectory << endl;
+                return;
+            }
+        }
+        else if(temp == "..")
+        {
+            size_t backSlash = currentDirectory.rfind("\\");
+            if(backSlash!=string::npos)
+                currentDirectory.erase(backSlash);
+            else
+                cout << "String not modified"<<endl;
+            cout << "Navigated to directory: " << currentDirectory << endl;
+            return;
+        }
+        else if(pathExist(currentDirectory + '\\' + temp))
+        {
+            currentDirectory = currentDirectory + '\\' + temp;
+            cout << "Navigated to directory: " << currentDirectory << endl;
+            return;
+        }
         cout << "Invalid directory. Please try again." << endl;
         cout << "Enter new directory: ";
         getline(cin,temp);
-    }
-
-    if(temp == "..")
-    {
-        size_t backSlash = currentDirectory.rfind("\\");
-		if(backSlash!=string::npos)
-			currentDirectory.erase(backSlash);
-		else
-			cout << "String not modified"<<endl;
-        cout << "Navigated to directory: " << currentDirectory << endl;
-        return;
-    }
-    currentDirectory = currentDirectory + '\\' + temp;
-    cout << "Navigated to directory: " << currentDirectory << endl;        
+    }  
 }
 
 
@@ -294,15 +308,19 @@ int main()
                     break;
                 }
             }
-            if(open)
+            if(open) // fix this
             {
-                const char* filePath = (currentDirectory+'\\'+fileName).c_str();
-                HINSTANCE result = ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);
+                char* filePath = new char[currentDirectory.size() + fileName.size() + 2];
+                filePath.append(currentDirectory);
+                filePath.append("\\");
+                filePath.append(fileName);
+                cout << filePath<<endl;
+                HINSTANCE result = ShellExecuteA(NULL, "open", currentDirectory + '\\' + fileName, NULL, NULL, SW_SHOWNORMAL);
 
                 if (reinterpret_cast<intptr_t>(result) > 32)
                     cout << "File opened successfully."<<endl;
                 else
-                    cerr << "Error opening file." << endl;
+                    cerr << "Error opening file. Error code: " << reinterpret_cast<intptr_t>(result) << endl;
             }
             
             cout << "Press enter to continue: "<<endl;
