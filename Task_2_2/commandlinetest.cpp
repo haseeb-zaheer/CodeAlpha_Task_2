@@ -310,12 +310,9 @@ int main()
             }
             if(open) // fix this
             {
-                char* filePath = new char[currentDirectory.size() + fileName.size() + 2];
-                filePath.append(currentDirectory);
-                filePath.append("\\");
-                filePath.append(fileName);
-                cout << filePath<<endl;
-                HINSTANCE result = ShellExecuteA(NULL, "open", currentDirectory + '\\' + fileName, NULL, NULL, SW_SHOWNORMAL);
+                string temp = currentDirectory + '\\' + fileName;
+                const char* filePath = temp.c_str();
+                HINSTANCE result = ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);
 
                 if (reinterpret_cast<intptr_t>(result) > 32)
                     cout << "File opened successfully."<<endl;
