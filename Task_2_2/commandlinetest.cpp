@@ -308,7 +308,7 @@ int main()
                     break;
                 }
             }
-            if(open) // fix this
+            if(open)
             {
                 string temp = currentDirectory + '\\' + fileName;
                 const char* filePath = temp.c_str();
