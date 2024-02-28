@@ -53,20 +53,24 @@ void navigate(string& currentDirectory)
     cout << "Enter folder name to open it in current directory (to go back a folder, enter '..')\n(Enter nothing to enter full directory): ";
     cout << "Examples:"<<endl;
     cout << "1. Input: 'C:\\Users\\user\\Desktop' if folder is not in current directory"<<endl;
+    cout << "2. Input: 'Desktop' if folder is in current directory"<<endl;
+    cout << "3. Input: '..' if you would like to go a folder back in directory"<<endl;
+    cout << "4. Input: '' if you would like to abort"<<endl;
+    cout << "Enter new directory: ";
     getline(cin, temp);
     
     while (true)
     {
-        if(temp.size()==0)
+        if(pathExist(temp) && temp!="..")
         {
-            cout << "Enter full directory: ";
-            getline(cin,temp);
-            if (pathExist(temp))
-            {
-                currentDirectory = temp;
-                cout << "Navigated to directory: " << currentDirectory << endl;
-                return;
-            }
+            currentDirectory = temp;
+            cout << "Navigated to directory: " << currentDirectory << endl;
+            return;
+        }
+        else if(temp.size()==0)
+        {
+            cout << "Path not modified"<<endl;
+            return;
         }
         else if(temp == "..")
         {
@@ -74,7 +78,7 @@ void navigate(string& currentDirectory)
             if(backSlash!=string::npos)
                 currentDirectory.erase(backSlash);
             else
-                cout << "String not modified"<<endl;
+                cout << "Path not modified"<<endl;
             cout << "Navigated to directory: " << currentDirectory << endl;
             return;
         }
@@ -89,7 +93,6 @@ void navigate(string& currentDirectory)
         getline(cin,temp);
     }  
 }
-
 
 void copyFolder(const string currentPath, const string destinationPath)
 {
@@ -194,11 +197,19 @@ void createDirectory(const string currentPath)
     cout << "Current Directory: "<<currentPath<<endl;
     cout << "Current Directory Folders: "<<endl;
     printFolders(currentPath);
+    cout << "Examples: "<<endl;
+    cout << "1. Input: 'folderName' to create a folder of folderName in current directory"<<endl;
+    cout << "2. Input: '' to abort operation"<<endl;
     cout << "Enter new directory name: ";
     getline(cin, newDirectory);
     while (true)
     {
-        if(fs::exists(currentPath+'\\'+newDirectory))
+        if(newDirectory.size()==0)
+        {
+            cout << "Directory not created." << endl;
+            break;
+        }
+        else if(fs::exists(currentPath+'\\'+newDirectory))
             cout << "Directory already exists. Please try again." << endl;
         else
         {
@@ -246,9 +257,10 @@ int main()
             printDirectory(sourcePath);
             cout << "Examples: " <<endl;
             cout << "1. Input: 'C:\\Users\\user\\Desktop\\file.txt' if file is not in current directory"<<endl;
-            cout << "2. Input: 'file.txt' if file is present in current directory"<<endl;
-            cout << "3. Input: 'copy dir' to copy the current directory"<<endl;
-            cout << "4. Input: Empty input if you would like to abort operation"<<endl;
+            cout << "2. Input: 'C:\\Users\\user\\Desktop\\folder' if folder to be copied is not current directory"<<endl;
+            cout << "3. Input: 'file.txt' if file is present in current directory"<<endl;
+            cout << "4. Input: 'copy dir' to copy the current directory"<<endl;
+            cout << "5. Input: Empty input if you would like to abort operation"<<endl;
             cout << "Enter source path: ";
             getline(cin, sourcePath);
             while (true)
@@ -301,11 +313,24 @@ int main()
             bool isFile = false;
             string sourcePath = currentDirectory, destinationPath;
             cout << "Current directory: " << sourcePath << endl;
-            cout << "Enter source path (Press Enter if you are already in the current directory to move from) \n(Include filename if you want to move a file)\n: ";
+            cout << "Folders/Files in current directory: " <<endl;
+            printDirectory(sourcePath);
+            cout << "Examples: " <<endl;
+            cout << "1. Input: 'C:\\Users\\user\\Desktop\\file.txt' if file is not in current directory"<<endl;
+            cout << "2. Input: 'C:\\Users\\user\\Desktop\\folder' if folder to be moved is not current directory"<<endl;
+            cout << "3. Input: 'file.txt' if file is present in current directory"<<endl;
+            cout << "4. Input: 'move dir' to copy the current directory"<<endl;
+            cout << "5. Input: Empty input if you would like to abort operation"<<endl;
+            cout << "Enter source path: ";
             getline(cin, sourcePath);
             while (true)
             {
                 if(sourcePath.size()==0)
+                {
+                    abort = true;
+                    break;
+                }
+                else if(sourcePath == "move dir")
                 {
                     sourcePath = currentDirectory;
                     break;
@@ -322,30 +347,43 @@ int main()
                 getline(cin,sourcePath);
             }
 
-            cout << "Enter destination path\n: ";
-            getline(cin, destinationPath);
-            while (true)
+            if(!abort)
             {
-                if(pathExist(destinationPath))
-                    break;
-                cout << "Invalid directory. Please try again." << endl;
-                cout << "Enter destination directory: ";
-                getline(cin,destinationPath);
+                cout << "Enter destination path: ";
+                getline(cin, destinationPath);
+                while (true)
+                {
+                    if(pathExist(destinationPath))
+                        break;
+                    cout << "Invalid directory. Please try again." << endl;
+                    cout << "Enter destination directory: ";
+                    getline(cin,destinationPath);
+                }
+                if(!isFile)
+                    moveFolder(sourcePath, destinationPath);
+                else
+                    moveFile(sourcePath, destinationPath);
+                currentDirectory = sourcePath;
+                cout << "Press enter to continue: "<<endl;
+                cin.ignore();
             }
-            if(!isFile)
-                moveFolder(sourcePath, destinationPath);
-            else
-                moveFile(sourcePath, destinationPath);
-            currentDirectory = sourcePath;
-            cout << "Press enter to continue: "<<endl;
-            cin.ignore();
         }
         else if (command == "open")
         {
             bool open = true;
-            cout << "Enter file name with extension: ";
             string fileName;
+            
+            cout << "Current directory: " << currentDirectory << endl;
+            cout << "Files in current directory: " <<endl;
+            printDirectory(currentDirectory);
+            cout << "Enter file name with extension (empty input to abort): ";            
             getline(cin, fileName);
+            if(fileName.size()==0)
+            {
+                cout << "Operation aborted."<<endl;
+                open = false;
+                continue;
+            }
             while(!fs::exists(currentDirectory+'\\'+fileName))
             {
                 cout << "Invalid file. Please enter a valid file (or enter nothing to abort operation): ";
