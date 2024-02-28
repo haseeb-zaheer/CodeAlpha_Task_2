@@ -227,7 +227,7 @@ int main()
     string command;
     string currentDirectory = "c:\\Users";  // starting directory
     cout <<endl;
-    cout << "Welcome to the file system navigator." << endl;
+    cout << "Welcome to the Command Line File Manager." << endl;
     cout << "These are the commands you can use: " << endl << endl;
     printHelp();
     while (true)
